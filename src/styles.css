@@ -81,6 +81,7 @@ p { line-height: 1.55; }
 .crate-grid { display: grid; gap: 8px; align-items: end; padding: 12px; border-radius: 20px; background: linear-gradient(180deg, rgba(255, 135, 50, .08), rgba(12,9,8,.65)); border: 1px solid rgba(255,255,255,.12); }
 .crate-cell { min-height: 62px; display: grid; place-items: center; position: relative; }
 .crate-cell.empty { visibility: hidden; }
+.crate-cell.receive-target { visibility: visible; outline: 4px solid var(--gold); background: rgba(240, 193, 90, .18); }
 .crate-cell.exposed { outline: 3px solid var(--gold); }
 .crate-cell.buried { filter: brightness(.64) saturate(.8); }
 .crate-cell span, .cooling-slot span { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle at 32% 28%, rgba(255,255,255,.78), var(--glass-color) 35%, rgba(0,0,0,.18)); border: 1px solid rgba(255,255,255,.42); box-shadow: 0 0 18px var(--glass-color), inset -8px -10px 20px rgba(0,0,0,.22); }

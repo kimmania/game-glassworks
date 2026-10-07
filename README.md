@@ -1,18 +1,18 @@
 # Glassworks
 
-A Venetian glass-blower's limited-buffer sorting puzzle for iPad and mobile.
+A Venetian glass-blower's mixed-crate sorting puzzle for iPad and mobile.
 
-A packed crate of molten glass arrives at the bench. Only the top globe of each vertical stack is reachable. Pull exposed globes into a limited number of cooling slots, then feed matching colours into their kilns. The puzzle is choosing extraction order without clogging the bench.
+Mixed crates of molten glass arrive at the bench. Only the top globe of each crate can move. Pull globes into a limited number of bench slots, then place them back into crates to reorganize every non-empty crate into a single colour.
 
 ## First release features
 
 - Intro story and first-launch help
-- Apprentice Studio map with 10 crate puzzles
+- Apprentice Studio map with 10 mixed-crate puzzles
 - Bench setups: Open Bench (4 slots), Working Bench (3 slots), Tight Bench (2 slots)
-- Packed crate with top-only extraction
-- Limited cooling slots as the main logic constraint
-- Kilns that seal when each colour is complete
-- Smoky glass / cullet-bin obstacle levels
+- Multiple mixed crates as both sources and destinations
+- Top-only extraction from every crate
+- Limited bench slots as the main logic constraint
+- Uniform-crate win condition
 - Stars, unlock progression, and persisted settings/progress
 - PWA install metadata and icons
 - GitHub Pages deploy workflow
