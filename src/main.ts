@@ -151,9 +151,10 @@ function showHelp(): void {
   showModal('How to Play', `
     <ol class="help-list">
       <li><strong>Watch the forehearth.</strong> The glowing queue at the top shows the next globes before they become grabbable.</li>
-      <li><strong>Sort one globe at a time.</strong> Tap a globe on the rack, then tap its matching kiln. You can also drag and release.</li>
+      <li><strong>Tap a moving globe.</strong> It moves to the Selected Globe tray and the matching kiln pulses.</li>
+      <li><strong>Tap the matching kiln.</strong> The globe drops in. One globe is held at a time.</li>
       <li><strong>Wrong colour shatters.</strong> A mismatched kiln breaks the globe into the cullet bin.</li>
-      <li><strong>Use Reheat.</strong> Select a globe, then tap Reheat to send it back through the furnace for another pass.</li>
+      <li><strong>Use Reheat or Clear.</strong> Reheat sends the selected globe back through the furnace; Clear returns it to the belt.</li>
       <li><strong>Relaxed loops.</strong> With the loop toggle on, cullet in Relaxed mode recycles until every kiln is sealed.</li>
     </ol>`)
 }
@@ -247,8 +248,10 @@ function renderGameShell(): void {
     </header>
     <section class="game-board">
       <div class="forehearth-panel"><span>Forehearth</span><div id="forehearth"></div></div>
+      <div class="action-banner" id="action-banner">Tap a moving globe on the rack, then tap its matching kiln.</div>
       <div class="rack-zone" id="rack-zone"><div class="furnace">🔥 Furnace</div><div class="rack-line"></div><div id="belt"></div><button class="cullet-bin" id="cullet-bin">Cullet<br><span id="cullet-count">0</span></button></div>
-      <div class="controls-row"><button class="primary" id="reheat-btn">🔥 Reheat <span id="reheat-count">${state.reheats}</span></button><button class="ghost" id="pause-btn">Pause</button><button class="ghost" id="restart-btn">Restart</button></div>
+      <div class="selected-tray" id="selected-tray"><span class="tray-label">Selected Globe</span><span id="selected-globe-readout">None — tap a moving globe.</span></div>
+      <div class="controls-row"><button class="primary" id="reheat-btn">🔥 Reheat <span id="reheat-count">${state.reheats}</span></button><button class="ghost" id="clear-selection-btn">Clear Selection</button><button class="ghost" id="pause-btn">Pause</button><button class="ghost" id="restart-btn">Restart</button></div>
       <div class="kiln-row" id="kilns"></div>
     </section>`
   app.append(wrap)
@@ -258,6 +261,7 @@ function renderGameShell(): void {
   document.querySelector('#pause-btn')?.addEventListener('click', togglePause)
   document.querySelector('#restart-btn')?.addEventListener('click', () => startLevel(state!.level, state!.speed))
   document.querySelector('#reheat-btn')?.addEventListener('click', useReheat)
+  document.querySelector('#clear-selection-btn')?.addEventListener('click', clearSelection)
   renderGameState()
 }
 
@@ -281,8 +285,8 @@ function tick(now: number): void {
     globe.x += speed * dt
     if (globe.x >= endX) dropToCullet(globe)
   }
+  updateFrameDom()
   checkWin()
-  renderGameState()
   requestAnimationFrame(tick)
 }
 
@@ -296,6 +300,17 @@ function spawnGlobe(): void {
   }
   state.globes.push({ id: state.nextId++, color, x: 36, state: 'belt' })
   state.spawnCooldown = 1.15
+  renderGameState()
+}
+
+function updateFrameDom(): void {
+  if (!state || screen !== 'game') return
+  for (const globe of state.globes) {
+    const el = document.querySelector<HTMLElement>(`[data-globe-id="${globe.id}"]`)
+    if (el) el.style.left = `${globe.x}px`
+  }
+  const timer = document.querySelector('#timer')
+  if (timer) timer.textContent = formatTime(state.elapsed)
 }
 
 function renderGameState(): void {
@@ -308,21 +323,31 @@ function renderGameState(): void {
     if (globe.state === 'held') continue
     const button = h('button', `globe on-belt color-${globe.color}`)
     button.style.left = `${globe.x}px`
+    button.dataset.globeId = String(globe.id)
     button.setAttribute('aria-label', `${COLORS[globe.color].name} globe`)
     button.innerHTML = `<span>${COLORS[globe.color].emoji}</span>`
-    button.addEventListener('click', () => holdGlobe(globe.id))
-    button.addEventListener('pointerdown', (event) => dragStart(event, globe.id))
+    button.addEventListener('pointerup', (event) => {
+      event.preventDefault()
+      holdGlobe(globe.id)
+    })
     belt.append(button)
   }
+  const selectedTray = document.querySelector('#selected-tray')
+  const selectedReadout = document.querySelector('#selected-globe-readout')
+  const banner = document.querySelector('#action-banner')
   if (state.held) {
-    const held = h('div', `held-chip color-${state.held.color}`)
-    held.textContent = `${COLORS[state.held.color].emoji} ${COLORS[state.held.color].name}`
-    belt.append(held)
+    selectedTray?.classList.add('active', `color-${state.held.color}`)
+    if (selectedReadout) selectedReadout.textContent = `${COLORS[state.held.color].emoji} ${COLORS[state.held.color].name} — tap the ${COLORS[state.held.color].name} kiln.`
+    if (banner) banner.textContent = `Selected ${COLORS[state.held.color].name}. Tap the matching ${COLORS[state.held.color].name} kiln, Reheat, or Clear Selection.`
+  } else {
+    if (selectedTray) selectedTray.className = 'selected-tray'
+    if (selectedReadout) selectedReadout.textContent = 'None — tap a moving globe.'
+    if (banner) banner.textContent = 'Tap a moving globe on the rack, then tap its matching kiln.'
   }
   const kilnRow = document.querySelector('#kilns')!
   kilnRow.innerHTML = ''
   for (const kiln of state.kilns) {
-    const button = h('button', `kiln color-${kiln.color} ${kiln.sealed ? 'sealed' : ''}`)
+    const button = h('button', `kiln color-${kiln.color} ${kiln.sealed ? 'sealed' : ''} ${state.held?.color === kiln.color ? 'match-target' : ''}`)
     button.disabled = kiln.sealed
     button.setAttribute('aria-label', `${COLORS[kiln.color].name} kiln ${kiln.count} of ${state.level.capacity}`)
     button.innerHTML = `<span class="kiln-banner">${COLORS[kiln.color].name}</span><span class="kiln-mouth">${kiln.sealed ? '✓' : COLORS[kiln.color].emoji}</span><span class="pips">${Array.from({ length: state.level.capacity }, (_, i) => `<i class="${i < kiln.count ? 'filled' : ''}"></i>`).join('')}</span>`
@@ -353,29 +378,7 @@ function holdGlobe(id: number): void {
   state.held = globe
   audio.play('grab')
   announce(`${COLORS[globe.color].name} globe selected.`)
-}
-
-function dragStart(event: PointerEvent, id: number): void {
-  holdGlobe(id)
-  const target = event.currentTarget as HTMLElement
-  target.setPointerCapture(event.pointerId)
-  const move = (moveEvent: PointerEvent) => {
-    const held = document.querySelector<HTMLElement>('.held-chip')
-    if (held) {
-      held.style.left = `${moveEvent.clientX - 52}px`
-      held.style.top = `${moveEvent.clientY - 52}px`
-    }
-  }
-  const up = (upEvent: PointerEvent) => {
-    document.removeEventListener('pointermove', move)
-    document.removeEventListener('pointerup', up)
-    const el = document.elementFromPoint(upEvent.clientX, upEvent.clientY)?.closest<HTMLElement>('.kiln')
-    const label = el?.querySelector('.kiln-banner')?.textContent
-    const color = (Object.entries(COLORS).find(([, meta]) => meta.name === label)?.[0] ?? null) as Exclude<GlassColor, 'smoky'> | null
-    if (color) placeInKiln(color)
-  }
-  document.addEventListener('pointermove', move)
-  document.addEventListener('pointerup', up, { once: true })
+  renderGameState()
 }
 
 function placeInKiln(color: Exclude<GlassColor, 'smoky'>): void {
@@ -388,6 +391,7 @@ function placeInKiln(color: Exclude<GlassColor, 'smoky'>): void {
   if (globe.color !== color) {
     shatter(globe.color)
     announce(`${COLORS[globe.color].name} shattered in the wrong kiln.`)
+    renderGameState()
     return
   }
   kiln.count += 1
@@ -400,6 +404,7 @@ function placeInKiln(color: Exclude<GlassColor, 'smoky'>): void {
     state.globes = state.globes.filter((next) => next.color !== color)
     announce(`${COLORS[color].name} kiln sealed.`)
   }
+  renderGameState()
 }
 
 function useReheat(): void {
@@ -411,6 +416,16 @@ function useReheat(): void {
   state.reheats -= 1
   audio.play('reheat')
   announce(`${COLORS[color].name} reheated and sent back to the forehearth.`)
+  renderGameState()
+}
+
+function clearSelection(): void {
+  if (!state?.held) return
+  state.held.state = 'belt'
+  state.held.x = Math.min(state.held.x + 12, 180)
+  announce(`${COLORS[state.held.color].name} returned to the rack.`)
+  state.held = null
+  renderGameState()
 }
 
 function dropToCullet(globe: Globe): void {
