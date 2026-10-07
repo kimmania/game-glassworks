@@ -9,38 +9,33 @@ async function startFirstLevel(page: import('@playwright/test').Page) {
   if (await helpDialog.isVisible()) {
     await helpDialog.getByRole('button', { name: 'Close' }).click()
   }
-  await page.getByRole('button', { name: /First Fire/ }).click()
-  await expect(page.getByText('Speed Setting')).toBeVisible()
+  await page.getByRole('button', { name: /First Crate/ }).click()
+  await expect(page.getByText('Bench Setup')).toBeVisible()
   await page.getByRole('button', { name: /Begin/ }).click()
-  await expect(page.getByText('Forehearth')).toBeVisible()
+  await expect(page.getByText('Packed Crate')).toBeVisible()
 }
 
-test('loads, starts level, and shows playable Glassworks UI', async ({ page }) => {
+test('loads, starts level, and shows crate sorting UI', async ({ page }) => {
   await startFirstLevel(page)
-  await expect(page.locator('.globe.on-belt').first()).toBeVisible()
+  await expect(page.locator('.crate-cell.exposed').first()).toBeVisible()
+  await expect(page.locator('.cooling-slot.empty').first()).toBeVisible()
   await expect(page.locator('.kiln').first()).toBeVisible()
-  await expect(page.locator('#action-banner')).toContainText('Tap a moving globe')
+  await expect(page.locator('#action-banner')).toContainText('Pull an exposed top globe')
   await page.screenshot({ path: 'test-results/glassworks-smoke.png', fullPage: true })
 })
 
-test('tap selection, pause, restart, clear, and kiln placement work on touch', async ({ page }) => {
+test('touch flow pulls from crate, stages in slot, and feeds matching kiln', async ({ page }) => {
   await startFirstLevel(page)
-  await expect(page.getByRole('button', { name: 'Pause' })).toBeEnabled()
-  await page.getByRole('button', { name: 'Pause' }).tap()
-  await expect(page.getByRole('button', { name: 'Resume' })).toBeVisible()
-  await expect(page.locator('.globe.on-belt').first()).toBeVisible()
-  const firstGlobe = page.locator('.globe.on-belt').first()
-  const label = await firstGlobe.getAttribute('aria-label')
-  const color = label?.replace(' globe', '') ?? 'Amber'
-  await firstGlobe.tap({ force: true })
-  await expect(page.locator('#selected-globe-readout')).toContainText(`${color} — tap the ${color} kiln`)
-  await expect(page.getByRole('button', { name: 'Restart' })).toBeEnabled()
-  await page.getByRole('button', { name: 'Clear Selection' }).tap()
-  await expect(page.locator('#selected-globe-readout')).toContainText('None — tap a moving globe.')
-  await page.locator('.globe.on-belt').first().tap({ force: true })
-  const selected = await page.locator('#selected-globe-readout').textContent()
-  const selectedColor = selected?.split(' ')[1] ?? 'Amber'
-  await page.getByRole('button', { name: new RegExp(`${selectedColor} kiln`) }).tap()
-  await expect(page.locator('#selected-globe-readout')).toContainText('None — tap a moving globe.')
-  await page.getByRole('button', { name: 'Resume' }).tap()
+  const firstCrate = page.locator('.crate-cell.exposed').first()
+  const label = await firstCrate.getAttribute('aria-label')
+  const color = label?.match(/^(.+?) crate globe/)?.[1] ?? 'Amber'
+  await firstCrate.tap()
+  await expect(page.locator('#action-banner')).toContainText(`Selected ${color}`)
+  await page.locator('.cooling-slot.empty').first().tap()
+  await expect(page.locator('.cooling-slot.filled').first()).toBeVisible()
+  await page.locator('.cooling-slot.filled').first().tap()
+  await expect(page.locator('#action-banner')).toContainText(`Selected ${color}`)
+  await page.getByRole('button', { name: new RegExp(`${color} kiln`) }).tap()
+  await expect(page.locator('#action-banner')).toContainText('Pull an exposed top globe')
+  await expect(page.locator('#move-count')).toContainText('2 moves')
 })

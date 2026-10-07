@@ -1,18 +1,18 @@
 # Glassworks
 
-A real-time Venetian glass-blower's conveyor sorting puzzle for iPad and mobile.
+A Venetian glass-blower's limited-buffer sorting puzzle for iPad and mobile.
 
-Molten glass globes roll from the forehearth toward the kilns. Sort one globe at a time into its matching kiln, use Reheat to send a globe back through the furnace, and seal every kiln to complete the level.
+A packed crate of molten glass arrives at the bench. Only the top globe of each vertical stack is reachable. Pull exposed globes into a limited number of cooling slots, then feed matching colours into their kilns. The puzzle is choosing extraction order without clogging the bench.
 
 ## First release features
 
 - Intro story and first-launch help
-- Apprentice Studio map with 10 levels
-- Relaxed / Normal / Fast speed settings
-- Forehearth look-ahead queue
-- Real-time belt engine with tap and drag controls
-- Kilns, sealing, cullet bin, Relaxed looping toggle
-- Reheat charges
+- Apprentice Studio map with 10 crate puzzles
+- Bench setups: Open Bench (4 slots), Working Bench (3 slots), Tight Bench (2 slots)
+- Packed crate with top-only extraction
+- Limited cooling slots as the main logic constraint
+- Kilns that seal when each colour is complete
+- Smoky glass / cullet-bin obstacle levels
 - Stars, unlock progression, and persisted settings/progress
 - PWA install metadata and icons
 - GitHub Pages deploy workflow

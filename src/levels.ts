@@ -8,6 +8,7 @@ export const COLORS = {
 } as const
 
 export type GlassColor = keyof typeof COLORS
+export type SortColor = Exclude<GlassColor, 'smoky'>
 export type SpeedKey = 'relaxed' | 'normal' | 'fast'
 
 export interface Level {
@@ -15,149 +16,175 @@ export interface Level {
   studio: 'apprentice'
   title: string
   subtitle: string
-  colors: Exclude<GlassColor, 'smoky'>[]
+  colors: SortColor[]
   capacity: number
-  sequence: GlassColor[]
-  reheats: number
-  targetCullet: number
-  targetTime: number
+  crate: GlassColor[][]
+  targetMoves: number
   unlockAfter?: string
 }
 
-export const SPEEDS: Record<SpeedKey, { label: string; pxPerSecond: number; lookAhead: number; culletLimit: number | null; recycle: boolean }> = {
-  relaxed: { label: 'Relaxed', pxPerSecond: 54, lookAhead: 6, culletLimit: null, recycle: true },
-  normal: { label: 'Normal', pxPerSecond: 86, lookAhead: 4, culletLimit: 8, recycle: false },
-  fast: { label: 'Fast', pxPerSecond: 124, lookAhead: 3, culletLimit: 5, recycle: false },
+export const SPEEDS: Record<SpeedKey, { label: string; slots: number; description: string }> = {
+  relaxed: { label: 'Open Bench', slots: 4, description: '4 cooling slots — generous planning space.' },
+  normal: { label: 'Working Bench', slots: 3, description: '3 cooling slots — intended puzzle balance.' },
+  fast: { label: 'Tight Bench', slots: 2, description: '2 cooling slots — hard mode.' },
 }
 
 export const LEVELS: Level[] = [
   {
     id: 'apprentice-01',
     studio: 'apprentice',
-    title: 'First Fire',
-    subtitle: 'Sort three colours while the forehearth teaches the rhythm.',
+    title: 'First Crate',
+    subtitle: 'Only the top globe of each stack can be pulled. Use the cooling slots to uncover matches.',
     colors: ['amber', 'crimson', 'cobalt'],
     capacity: 3,
-    reheats: 3,
-    targetCullet: 0,
-    targetTime: 80,
-    sequence: ['amber', 'crimson', 'cobalt', 'amber', 'cobalt', 'crimson', 'amber', 'crimson', 'cobalt'],
+    targetMoves: 18,
+    crate: [
+      ['amber', 'crimson', 'amber'],
+      ['crimson', 'cobalt', 'crimson'],
+      ['cobalt', 'amber', 'cobalt'],
+    ],
   },
   {
     id: 'apprentice-02',
     studio: 'apprentice',
-    title: 'Canal Light',
-    subtitle: 'A longer run with repeated pairs. Watch the forehearth before you grab.',
+    title: 'Buried Blues',
+    subtitle: 'Cobalt is trapped low in the crate. Make room before you expose it.',
     colors: ['amber', 'emerald', 'cobalt'],
     capacity: 3,
-    reheats: 3,
-    targetCullet: 0,
-    targetTime: 85,
-    sequence: ['emerald', 'amber', 'emerald', 'cobalt', 'amber', 'cobalt', 'emerald', 'amber', 'cobalt'],
+    targetMoves: 18,
+    crate: [
+      ['cobalt', 'amber', 'emerald'],
+      ['amber', 'emerald', 'cobalt'],
+      ['emerald', 'cobalt', 'amber'],
+    ],
     unlockAfter: 'apprentice-01',
   },
   {
     id: 'apprentice-03',
     studio: 'apprentice',
-    title: 'Three Hot Hands',
-    subtitle: 'The same colour returns before you expect it. One globe at a time.',
+    title: 'Two Slot Lesson',
+    subtitle: 'A small buffer means the wrong first pull can clog the bench.',
     colors: ['crimson', 'cobalt', 'amethyst'],
     capacity: 3,
-    reheats: 2,
-    targetCullet: 1,
-    targetTime: 90,
-    sequence: ['crimson', 'cobalt', 'crimson', 'amethyst', 'cobalt', 'amethyst', 'crimson', 'amethyst', 'cobalt'],
+    targetMoves: 19,
+    crate: [
+      ['amethyst', 'crimson', 'cobalt'],
+      ['cobalt', 'amethyst', 'crimson'],
+      ['crimson', 'cobalt', 'amethyst'],
+    ],
     unlockAfter: 'apprentice-02',
   },
   {
     id: 'apprentice-04',
     studio: 'apprentice',
     title: 'Four Kilns',
-    subtitle: 'Four colours, small kilns, no combos — just clean sorting.',
+    subtitle: 'Four colours share three cooling slots. Preserve at least one escape space.',
     colors: ['amber', 'crimson', 'cobalt', 'emerald'],
     capacity: 3,
-    reheats: 2,
-    targetCullet: 1,
-    targetTime: 110,
-    sequence: ['amber', 'cobalt', 'crimson', 'emerald', 'amber', 'crimson', 'cobalt', 'emerald', 'cobalt', 'amber', 'emerald', 'crimson'],
+    targetMoves: 24,
+    crate: [
+      ['amber', 'cobalt', 'crimson'],
+      ['emerald', 'amber', 'cobalt'],
+      ['crimson', 'emerald', 'amber'],
+      ['cobalt', 'crimson', 'emerald'],
+    ],
     unlockAfter: 'apprentice-03',
   },
   {
     id: 'apprentice-05',
     studio: 'apprentice',
     title: 'Crowded Bench',
-    subtitle: 'The rack gets busier; Reheat buys time, not points.',
+    subtitle: 'The crate exposes tempting colours in the wrong order.',
     colors: ['amber', 'crimson', 'emerald', 'amethyst'],
     capacity: 3,
-    reheats: 2,
-    targetCullet: 1,
-    targetTime: 110,
-    sequence: ['amethyst', 'amber', 'crimson', 'emerald', 'amethyst', 'crimson', 'amber', 'emerald', 'crimson', 'amethyst', 'emerald', 'amber'],
+    targetMoves: 25,
+    crate: [
+      ['amethyst', 'amber', 'crimson'],
+      ['crimson', 'emerald', 'amethyst'],
+      ['emerald', 'crimson', 'amber'],
+      ['amber', 'amethyst', 'emerald'],
+    ],
     unlockAfter: 'apprentice-04',
   },
   {
     id: 'apprentice-06',
     studio: 'apprentice',
-    title: 'Long Cooling Rack',
-    subtitle: 'Four-globe kilns ask for steadier throughput.',
+    title: 'Deep Layers',
+    subtitle: 'Four-globe kilns require longer plans and cleaner staging.',
     colors: ['amber', 'cobalt', 'emerald'],
     capacity: 4,
-    reheats: 2,
-    targetCullet: 1,
-    targetTime: 120,
-    sequence: ['amber', 'cobalt', 'emerald', 'amber', 'emerald', 'cobalt', 'amber', 'cobalt', 'emerald', 'cobalt', 'amber', 'emerald'],
+    targetMoves: 26,
+    crate: [
+      ['amber', 'cobalt', 'emerald', 'amber'],
+      ['cobalt', 'emerald', 'amber', 'cobalt'],
+      ['emerald', 'amber', 'cobalt', 'emerald'],
+    ],
     unlockAfter: 'apprentice-05',
   },
   {
     id: 'apprentice-07',
     studio: 'apprentice',
     title: 'First Smoke',
-    subtitle: 'Smoky glass has no kiln. Let it break or spend a Reheat if you need space.',
+    subtitle: 'Smoky glass has no kiln. It must go into the cullet bin, but it still consumes a slot first.',
     colors: ['amber', 'crimson', 'cobalt'],
     capacity: 3,
-    reheats: 2,
-    targetCullet: 2,
-    targetTime: 100,
-    sequence: ['amber', 'smoky', 'crimson', 'cobalt', 'amber', 'crimson', 'smoky', 'cobalt', 'amber', 'crimson', 'cobalt'],
+    targetMoves: 22,
+    crate: [
+      ['amber', 'smoky', 'crimson'],
+      ['cobalt', 'amber', 'cobalt'],
+      ['crimson', 'cobalt', 'amber'],
+      ['smoky', 'crimson'],
+    ],
     unlockAfter: 'apprentice-06',
   },
   {
     id: 'apprentice-08',
     studio: 'apprentice',
     title: 'Maestro’s Pattern',
-    subtitle: 'A balanced five-colour sequence. The forehearth is your plan.',
+    subtitle: 'Five colours, three slots. Decide what to finish before you pull deeper.',
     colors: ['amber', 'crimson', 'cobalt', 'emerald', 'amethyst'],
     capacity: 3,
-    reheats: 2,
-    targetCullet: 2,
-    targetTime: 145,
-    sequence: ['amber', 'crimson', 'cobalt', 'emerald', 'amethyst', 'amber', 'cobalt', 'crimson', 'emerald', 'amethyst', 'cobalt', 'amber', 'amethyst', 'emerald', 'crimson'],
+    targetMoves: 32,
+    crate: [
+      ['amber', 'crimson', 'cobalt'],
+      ['emerald', 'amethyst', 'amber'],
+      ['cobalt', 'emerald', 'crimson'],
+      ['amethyst', 'cobalt', 'emerald'],
+      ['crimson', 'amber', 'amethyst'],
+    ],
     unlockAfter: 'apprentice-07',
   },
   {
     id: 'apprentice-09',
     studio: 'apprentice',
     title: 'Bronze Doors',
-    subtitle: 'Completed kilns seal and their colours leave the sequence.',
+    subtitle: 'Once a kiln seals, its colour is safe. Work toward completed sets.',
     colors: ['crimson', 'cobalt', 'emerald', 'amethyst'],
     capacity: 4,
-    reheats: 1,
-    targetCullet: 2,
-    targetTime: 150,
-    sequence: ['crimson', 'cobalt', 'emerald', 'amethyst', 'crimson', 'emerald', 'cobalt', 'amethyst', 'emerald', 'crimson', 'amethyst', 'cobalt', 'crimson', 'emerald', 'cobalt', 'amethyst'],
+    targetMoves: 36,
+    crate: [
+      ['crimson', 'cobalt', 'emerald', 'amethyst'],
+      ['cobalt', 'amethyst', 'crimson', 'emerald'],
+      ['emerald', 'crimson', 'amethyst', 'cobalt'],
+      ['amethyst', 'emerald', 'cobalt', 'crimson'],
+    ],
     unlockAfter: 'apprentice-08',
   },
   {
     id: 'apprentice-10',
     studio: 'apprentice',
     title: 'Apprentice Gallery',
-    subtitle: 'Finish the first studio. Fast mode is optional; clean sorting is not.',
+    subtitle: 'A full five-colour crate with little room for mistakes.',
     colors: ['amber', 'crimson', 'cobalt', 'emerald', 'amethyst'],
     capacity: 4,
-    reheats: 1,
-    targetCullet: 2,
-    targetTime: 170,
-    sequence: ['amber', 'crimson', 'cobalt', 'emerald', 'amethyst', 'cobalt', 'amber', 'emerald', 'crimson', 'amethyst', 'emerald', 'cobalt', 'amber', 'crimson', 'amethyst', 'amber', 'emerald', 'cobalt', 'amethyst', 'crimson'],
+    targetMoves: 44,
+    crate: [
+      ['amber', 'crimson', 'cobalt', 'emerald'],
+      ['amethyst', 'amber', 'emerald', 'crimson'],
+      ['cobalt', 'amethyst', 'amber', 'cobalt'],
+      ['emerald', 'cobalt', 'crimson', 'amethyst'],
+      ['crimson', 'emerald', 'amethyst', 'amber'],
+    ],
     unlockAfter: 'apprentice-09',
   },
 ]
