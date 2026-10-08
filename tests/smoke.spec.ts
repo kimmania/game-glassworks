@@ -15,6 +15,7 @@ test('loads conveyor builder UI', async ({ page }) => {
   await startFirstLevel(page)
   await expect(page.locator('.tool-card').first()).toBeVisible()
   await expect(page.locator('.grid-cell').first()).toBeVisible()
+  await expect(page.getByText('Exit →')).toBeVisible()
   await expect(page.getByRole('button', { name: /Run Conveyor/ })).toBeVisible()
   await page.screenshot({ path: 'test-results/glassworks-smoke.png', fullPage: true })
 })
