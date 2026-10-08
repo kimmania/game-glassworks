@@ -7,14 +7,14 @@ Molten glass enters from a fixed furnace. The player builds the conveyor belt it
 ## First release features
 
 - Intro story and first-launch help
-- Apprentice Studio map with 20 conveyor-builder puzzles
+- Apprentice Studio map with 23 conveyor-builder puzzles
 - Levels open directly into the builder
 - Playback speed setting for run animation
 - Grid-based belt placement
 - Tap placed pieces to rotate them
 - Straight belts, corner belts, selectable colour gates, and true bridge/overpass crossing pieces
 - Fixed pieces and blocked hot tiles in later levels
-- Fixed incoming sequence per level
+- Fixed incoming sequences per level, including multi-source bridge levels
 - Animated route log with correct/incorrect delivery feedback
 - Stars, unlock progression, and persisted settings/progress
 - PWA install metadata and icons
