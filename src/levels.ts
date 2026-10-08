@@ -44,12 +44,15 @@ export const ROUTE_LABELS: Record<RouteId, string> = {
 
 export const LEVELS: Level[] = [
   {
-    id: 'apprentice-01', studio: 'apprentice', title: 'First Switch',
-    subtitle: 'One gate sorts two colours. Set the route, then run the glass.',
+    id: 'apprentice-01', studio: 'apprentice', title: 'First Switchboard',
+    subtitle: 'Every colour has its own switch card. Tap each card to choose that colour’s kiln route.',
     sequence: ['amber', 'crimson', 'amber', 'crimson'],
     kilns: { amber: 'A', crimson: 'B', cobalt: 'C', emerald: 'D', amethyst: 'D' },
-    gates: [{ id: 'amber', label: 'Amber Gate', choices: ['A', 'B'], initial: 'B' }],
-    par: 1,
+    gates: [
+      { id: 'amber', label: 'Amber Switch', choices: ['A', 'B'], initial: 'B' },
+      { id: 'crimson', label: 'Crimson Switch', choices: ['A', 'B'], initial: 'A' },
+    ],
+    par: 2,
   },
   {
     id: 'apprentice-02', studio: 'apprentice', title: 'Three Colours',

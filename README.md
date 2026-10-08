@@ -10,9 +10,10 @@ Molten glass enters on a fixed conveyor sequence. Instead of grabbing each globe
 - Apprentice Studio map with 5 switchboard puzzles
 - Run speeds: Study Run, Workshop Run, Maestro Run
 - Fixed incoming sequence per level
-- Programmable colour/default gates
+- Visible switch card for each editable colour
+- Tap a colour switch card to cycle its kiln route
 - Animated run log with correct/incorrect route feedback
-- Kiln route reference panel
+- Kiln route reference panel showing the target route for each colour
 - Stars, unlock progression, and persisted settings/progress
 - PWA install metadata and icons
 - GitHub Pages deploy workflow
