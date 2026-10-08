@@ -7,7 +7,7 @@ Molten glass enters from a fixed furnace. The player builds the conveyor belt it
 ## First release features
 
 - Intro story and first-launch help
-- Apprentice Studio map with 5 conveyor-builder puzzles
+- Apprentice Studio map with 10 conveyor-builder puzzles
 - Levels open directly into the builder
 - Playback speed setting for run animation
 - Grid-based belt placement
