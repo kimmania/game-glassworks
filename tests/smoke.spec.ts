@@ -37,10 +37,22 @@ test('gate colour picker can choose non-amber gates', async ({ page }) => {
   await page.evaluate(() => localStorage.setItem('glassworks-save-v1', JSON.stringify({ version: 1, settings: { defaultSpeed: 'relaxed', sound: true, reducedMotion: false, highContrast: false, loopRelaxed: true, seenIntro: true, seenHelp: true }, completed: { 'apprentice-01': 1, 'apprentice-02': 1 }, results: {} })))
   await page.reload()
   await expect(page.getByLabel('Apprentice Studio levels')).toBeVisible()
-  await page.getByRole('button', { name: /Amber Gate/ }).click()
+  await page.getByRole('button', { name: 'Amber Gate', exact: true }).click()
   await expect(page.getByText('Gate colour')).toBeVisible()
   await page.getByRole('button', { name: /Cobalt gate colour/ }).tap()
   await expect(page.getByRole('button', { name: /Cobalt gate colour/ })).toHaveClass(/selected/)
+})
+
+test('blocked tiles and bridge tool appear in later levels', async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(() => localStorage.setItem('glassworks-save-v1', JSON.stringify({ version: 1, settings: { defaultSpeed: 'relaxed', sound: true, reducedMotion: false, highContrast: false, loopRelaxed: true, seenIntro: true, seenHelp: true }, completed: { 'apprentice-01': 1, 'apprentice-02': 1, 'apprentice-03': 1, 'apprentice-04': 1, 'apprentice-05': 1, 'apprentice-06': 1, 'apprentice-07': 1, 'apprentice-08': 1, 'apprentice-09': 1, 'apprentice-10': 1, 'apprentice-11': 1, 'apprentice-12': 1, 'apprentice-13': 1, 'apprentice-14': 1, 'apprentice-15': 1, 'apprentice-16': 1, 'apprentice-17': 1, 'apprentice-18': 1 }, results: {} })))
+  await page.reload()
+  await expect(page.getByLabel('Apprentice Studio levels')).toBeVisible()
+  await page.getByRole('button', { name: /First Bridge/ }).click()
+  await expect(page.getByRole('button', { name: /Bridge/ })).toBeVisible()
+  await page.getByRole('button', { name: /Map/ }).click()
+  await page.getByRole('button', { name: /Vent Maze/ }).click()
+  await expect(page.locator('.grid-cell.blocked').first()).toBeVisible()
 })
 
 test('continue after solving opens next level directly', async ({ page }) => {
