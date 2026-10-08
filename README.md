@@ -1,19 +1,19 @@
 # Glassworks
 
-A Venetian glass-blower's switch-conveyor routing puzzle for iPad and mobile.
+A Venetian glass-blower's conveyor-builder puzzle for iPad and mobile.
 
-Molten glass enters on a fixed conveyor sequence. Instead of grabbing each globe, the player programs colour gates, presses **Run Conveyor**, and watches whether every globe reaches its matching kiln route.
+Molten glass enters from a fixed furnace. The player builds the conveyor belt itself — placing straight belts, corners, and colour gates — then presses **Run Conveyor** to watch whether each globe reaches its matching kiln.
 
 ## First release features
 
 - Intro story and first-launch help
-- Apprentice Studio map with 5 switchboard puzzles
+- Apprentice Studio map with 5 conveyor-builder puzzles
 - Run speeds: Study Run, Workshop Run, Maestro Run
+- Grid-based belt placement
+- Tap placed pieces to rotate them
+- Straight belts, corner belts, and Amber colour gates
 - Fixed incoming sequence per level
-- Visible switch card for each editable colour
-- Tap a colour switch card to cycle its kiln route
-- Animated run log with correct/incorrect route feedback
-- Kiln route reference panel showing the target route for each colour
+- Animated route log with correct/incorrect delivery feedback
 - Stars, unlock progression, and persisted settings/progress
 - PWA install metadata and icons
 - GitHub Pages deploy workflow
