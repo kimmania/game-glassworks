@@ -17,6 +17,10 @@ test('loads conveyor builder UI', async ({ page }) => {
   await expect(page.locator('.grid-cell').first()).toBeVisible()
   await expect(page.getByText('Exit →')).toBeVisible()
   await expect(page.getByRole('button', { name: /Run Conveyor/ })).toBeVisible()
+  await page.getByRole('button', { name: '?' }).click()
+  await expect(page.getByText('Shape Legend')).toBeVisible()
+  await expect(page.getByText('╋ Bridge: true crossing —')).toBeVisible()
+  await page.getByRole('button', { name: 'Close' }).click()
   await page.screenshot({ path: 'test-results/glassworks-smoke.png', fullPage: true })
 })
 
@@ -51,6 +55,7 @@ test('blocked tiles and bridge tool appear in later levels', async ({ page }) =>
   await expect(page.getByLabel('Apprentice Studio levels')).toBeVisible()
   await page.getByRole('button', { name: /First Bridge/ }).click()
   await expect(page.getByRole('button', { name: /Bridge/ })).toBeVisible()
+  await expect(page.locator('.grid-cell.piece').filter({ hasText: '╋' }).first()).toBeVisible()
   await page.getByRole('button', { name: /Map/ }).click()
   await page.getByRole('button', { name: /Vent Maze/ }).click()
   await expect(page.locator('.grid-cell.blocked').first()).toBeVisible()
