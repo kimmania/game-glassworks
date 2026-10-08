@@ -19,7 +19,7 @@ test('loads conveyor builder UI', async ({ page }) => {
   await page.screenshot({ path: 'test-results/glassworks-smoke.png', fullPage: true })
 })
 
-test('can place a belt, rotate it, and run on touch', async ({ page }) => {
+test('can select a gate colour, place a belt, rotate it, and run on touch', async ({ page }) => {
   await startFirstLevel(page)
   await page.getByRole('button', { name: /Straight/ }).tap()
   await page.locator('.grid-cell.empty').nth(1).tap()
@@ -28,6 +28,17 @@ test('can place a belt, rotate it, and run on touch', async ({ page }) => {
   await expect(page.locator('#edit-count')).toContainText('2 edits')
   await page.getByRole('button', { name: /Run Conveyor/ }).tap()
   await expect(page.locator('#run-log')).toContainText(/Amber|No run yet/)
+})
+
+test('gate colour picker can choose non-amber gates', async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(() => localStorage.setItem('glassworks-save-v1', JSON.stringify({ version: 1, settings: { defaultSpeed: 'relaxed', sound: true, reducedMotion: false, highContrast: false, loopRelaxed: true, seenIntro: true, seenHelp: true }, completed: { 'apprentice-01': 1, 'apprentice-02': 1 }, results: {} })))
+  await page.reload()
+  await expect(page.getByLabel('Apprentice Studio levels')).toBeVisible()
+  await page.getByRole('button', { name: /Amber Gate/ }).click()
+  await expect(page.getByText('Gate colour')).toBeVisible()
+  await page.getByRole('button', { name: /Cobalt gate colour/ }).tap()
+  await expect(page.getByRole('button', { name: /Cobalt gate colour/ })).toHaveClass(/selected/)
 })
 
 test('continue after solving opens next level directly', async ({ page }) => {
