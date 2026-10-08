@@ -29,3 +29,16 @@ test('can place a belt, rotate it, and run on touch', async ({ page }) => {
   await page.getByRole('button', { name: /Run Conveyor/ }).tap()
   await expect(page.locator('#run-log')).toContainText(/Amber|No run yet/)
 })
+
+test('continue after solving opens next level directly', async ({ page }) => {
+  await startFirstLevel(page)
+  await page.getByRole('button', { name: /Straight/ }).tap()
+  await page.locator('.grid-cell').nth(6).tap()
+  await page.locator('.grid-cell').nth(7).tap()
+  await page.locator('.grid-cell').nth(8).tap()
+  await page.getByRole('button', { name: /Run Conveyor/ }).tap()
+  await expect(page.getByRole('dialog', { name: 'Conveyor Solved' })).toBeVisible({ timeout: 5000 })
+  await page.getByRole('button', { name: /Next: First Turn/ }).tap()
+  await expect(page.getByRole('heading', { name: 'First Turn' })).toBeVisible()
+  await expect(page.getByText('Build Grid')).toBeVisible()
+})
