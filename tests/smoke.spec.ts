@@ -27,6 +27,8 @@ test('can select a gate colour, place a belt, rotate it, and run on touch', asyn
   await page.locator('.grid-cell.piece').first().tap()
   await expect(page.locator('#edit-count')).toContainText('2 edits')
   await page.getByRole('button', { name: /Run Conveyor/ }).tap()
+  await expect(page.locator('#action-banner')).toContainText(/Running .*Amber/)
+  await expect(page.locator('.grid-cell.active.color-amber').first()).toBeVisible()
   await expect(page.locator('#run-log')).toContainText(/Amber|No run yet/)
 })
 
