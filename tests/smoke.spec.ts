@@ -8,8 +8,6 @@ async function startFirstLevel(page: import('@playwright/test').Page) {
   const helpDialog = page.getByRole('dialog', { name: 'How to Play' })
   if (await helpDialog.isVisible()) await helpDialog.getByRole('button', { name: 'Close' }).click()
   await page.getByRole('button', { name: /Build the Line/ }).click()
-  await expect(page.getByText('Run Speed')).toBeVisible()
-  await page.getByRole('button', { name: /Open Builder/ }).click()
   await expect(page.getByText('Build Grid')).toBeVisible()
 }
 
