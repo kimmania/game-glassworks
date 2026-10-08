@@ -7,36 +7,100 @@ export const COLORS = {
 } as const
 
 export type GlassColor = keyof typeof COLORS
+export type RouteId = 'A' | 'B' | 'C' | 'D'
 export type SpeedKey = 'relaxed' | 'normal' | 'fast'
+
+export interface GateSpec {
+  id: string
+  label: string
+  choices: RouteId[]
+  initial: RouteId
+}
 
 export interface Level {
   id: string
   studio: 'apprentice'
   title: string
   subtitle: string
-  capacity: number
-  crates: GlassColor[][]
-  targetMoves: number
+  sequence: GlassColor[]
+  kilns: Record<GlassColor, RouteId>
+  gates: GateSpec[]
+  par: number
   unlockAfter?: string
 }
 
-export const SPEEDS: Record<SpeedKey, { label: string; slots: number; description: string }> = {
-  relaxed: { label: 'Open Bench', slots: 4, description: '4 bench slots — generous planning space.' },
-  normal: { label: 'Working Bench', slots: 3, description: '3 bench slots — intended puzzle balance.' },
-  fast: { label: 'Tight Bench', slots: 2, description: '2 bench slots — hard mode.' },
+export const SPEEDS: Record<SpeedKey, { label: string; speedMs: number; description: string }> = {
+  relaxed: { label: 'Study Run', speedMs: 650, description: 'Slow animation for learning routes.' },
+  normal: { label: 'Workshop Run', speedMs: 430, description: 'Standard animation pace.' },
+  fast: { label: 'Maestro Run', speedMs: 260, description: 'Fast playback after you know the plan.' },
+}
+
+export const ROUTE_LABELS: Record<RouteId, string> = {
+  A: 'Upper Kiln',
+  B: 'Middle Kiln',
+  C: 'Lower Kiln',
+  D: 'Side Kiln',
 }
 
 export const LEVELS: Level[] = [
-  { id: 'apprentice-01', studio: 'apprentice', title: 'Two Crates, One Bench', subtitle: 'Sort mixed crates into uniform colour crates using the bench as temporary storage.', capacity: 3, targetMoves: 10, crates: [['amber', 'crimson', 'amber'], ['crimson', 'amber', 'crimson'], []] },
-  { id: 'apprentice-02', studio: 'apprentice', title: 'Blue Under Gold', subtitle: 'The right destination is not obvious until you expose the lower layers.', capacity: 3, targetMoves: 14, crates: [['cobalt', 'amber', 'emerald'], ['emerald', 'cobalt', 'amber'], ['amber', 'emerald', 'cobalt'], []], unlockAfter: 'apprentice-01' },
-  { id: 'apprentice-03', studio: 'apprentice', title: 'Three-Way Split', subtitle: 'Every crate starts mixed. Empty crates are precious staging space.', capacity: 3, targetMoves: 16, crates: [['crimson', 'cobalt', 'amethyst'], ['amethyst', 'crimson', 'cobalt'], ['cobalt', 'amethyst', 'crimson'], []], unlockAfter: 'apprentice-02' },
-  { id: 'apprentice-04', studio: 'apprentice', title: 'Four Colours', subtitle: 'Four colours, one empty crate, and only three bench slots on Working Bench.', capacity: 3, targetMoves: 22, crates: [['amber', 'cobalt', 'crimson'], ['emerald', 'amber', 'cobalt'], ['crimson', 'emerald', 'amber'], ['cobalt', 'crimson', 'emerald'], []], unlockAfter: 'apprentice-03' },
-  { id: 'apprentice-05', studio: 'apprentice', title: 'No Free Bottoms', subtitle: 'Every bottom layer is useful; careless staging buries the colours you need.', capacity: 3, targetMoves: 24, crates: [['amethyst', 'amber', 'crimson'], ['crimson', 'emerald', 'amethyst'], ['emerald', 'crimson', 'amber'], ['amber', 'amethyst', 'emerald'], []], unlockAfter: 'apprentice-04' },
-  { id: 'apprentice-06', studio: 'apprentice', title: 'Deep Crates', subtitle: 'Capacity four makes each wrong transfer more expensive to undo.', capacity: 4, targetMoves: 30, crates: [['amber', 'cobalt', 'emerald', 'amber'], ['cobalt', 'emerald', 'amber', 'cobalt'], ['emerald', 'amber', 'cobalt', 'emerald'], []], unlockAfter: 'apprentice-05' },
-  { id: 'apprentice-07', studio: 'apprentice', title: 'Two Empty Crates', subtitle: 'More crate space helps, but the bench still limits how much you can unbury at once.', capacity: 3, targetMoves: 24, crates: [['amber', 'crimson', 'cobalt'], ['cobalt', 'amber', 'crimson'], ['crimson', 'cobalt', 'amber'], [], []], unlockAfter: 'apprentice-06' },
-  { id: 'apprentice-08', studio: 'apprentice', title: 'Five-Colour Bench', subtitle: 'Five colours create more destination pressure than the bench can hold at once.', capacity: 3, targetMoves: 34, crates: [['amber', 'crimson', 'cobalt'], ['emerald', 'amethyst', 'amber'], ['cobalt', 'emerald', 'crimson'], ['amethyst', 'cobalt', 'emerald'], ['crimson', 'amber', 'amethyst'], []], unlockAfter: 'apprentice-07' },
-  { id: 'apprentice-09', studio: 'apprentice', title: 'Almost Sorted', subtitle: 'Looks close, but the top layers block the finishing transfers.', capacity: 4, targetMoves: 32, crates: [['crimson', 'crimson', 'cobalt', 'crimson'], ['cobalt', 'cobalt', 'emerald', 'cobalt'], ['emerald', 'emerald', 'amethyst', 'emerald'], ['amethyst', 'amethyst', 'crimson', 'amethyst'], []], unlockAfter: 'apprentice-08' },
-  { id: 'apprentice-10', studio: 'apprentice', title: 'Apprentice Gallery', subtitle: 'A full mixed shipment with two empty crates and little room for sloppy staging.', capacity: 4, targetMoves: 44, crates: [['amber', 'crimson', 'cobalt', 'emerald'], ['amethyst', 'amber', 'emerald', 'crimson'], ['cobalt', 'amethyst', 'amber', 'cobalt'], ['emerald', 'cobalt', 'crimson', 'amethyst'], ['crimson', 'emerald', 'amethyst', 'amber'], [], []], unlockAfter: 'apprentice-09' },
+  {
+    id: 'apprentice-01', studio: 'apprentice', title: 'First Switch',
+    subtitle: 'One gate sorts two colours. Set the route, then run the glass.',
+    sequence: ['amber', 'crimson', 'amber', 'crimson'],
+    kilns: { amber: 'A', crimson: 'B', cobalt: 'C', emerald: 'D', amethyst: 'D' },
+    gates: [{ id: 'amber', label: 'Amber Gate', choices: ['A', 'B'], initial: 'B' }],
+    par: 1,
+  },
+  {
+    id: 'apprentice-02', studio: 'apprentice', title: 'Three Colours',
+    subtitle: 'Two gates divide a three-colour stream.',
+    sequence: ['amber', 'cobalt', 'crimson', 'amber', 'cobalt', 'crimson'],
+    kilns: { amber: 'A', crimson: 'B', cobalt: 'C', emerald: 'D', amethyst: 'D' },
+    gates: [
+      { id: 'amber', label: 'Amber Gate', choices: ['A', 'B', 'C'], initial: 'B' },
+      { id: 'cobalt', label: 'Cobalt Gate', choices: ['A', 'B', 'C'], initial: 'A' },
+    ],
+    par: 2,
+    unlockAfter: 'apprentice-01',
+  },
+  {
+    id: 'apprentice-03', studio: 'apprentice', title: 'Default Path',
+    subtitle: 'Unassigned colours follow the default route. Set only what must change.',
+    sequence: ['emerald', 'amber', 'crimson', 'emerald', 'amber', 'crimson'],
+    kilns: { amber: 'A', crimson: 'B', emerald: 'C', cobalt: 'D', amethyst: 'D' },
+    gates: [
+      { id: 'default', label: 'Default Gate', choices: ['A', 'B', 'C'], initial: 'A' },
+      { id: 'crimson', label: 'Crimson Override', choices: ['A', 'B', 'C'], initial: 'C' },
+    ],
+    par: 2,
+    unlockAfter: 'apprentice-02',
+  },
+  {
+    id: 'apprentice-04', studio: 'apprentice', title: 'Four Kilns',
+    subtitle: 'Four routes, three adjustable gates, one correct routing table.',
+    sequence: ['amber', 'cobalt', 'emerald', 'crimson', 'amber', 'emerald', 'cobalt', 'crimson'],
+    kilns: { amber: 'A', crimson: 'B', cobalt: 'C', emerald: 'D', amethyst: 'D' },
+    gates: [
+      { id: 'amber', label: 'Amber Gate', choices: ['A', 'B', 'C', 'D'], initial: 'D' },
+      { id: 'cobalt', label: 'Cobalt Gate', choices: ['A', 'B', 'C', 'D'], initial: 'B' },
+      { id: 'emerald', label: 'Emerald Gate', choices: ['A', 'B', 'C', 'D'], initial: 'A' },
+    ],
+    par: 3,
+    unlockAfter: 'apprentice-03',
+  },
+  {
+    id: 'apprentice-05', studio: 'apprentice', title: 'Shared Mistake',
+    subtitle: 'One wrong default sends multiple colours astray.',
+    sequence: ['amethyst', 'emerald', 'amber', 'amethyst', 'crimson', 'emerald', 'amber'],
+    kilns: { amber: 'A', crimson: 'B', emerald: 'C', amethyst: 'D', cobalt: 'A' },
+    gates: [
+      { id: 'default', label: 'Default Gate', choices: ['A', 'B', 'C', 'D'], initial: 'B' },
+      { id: 'amber', label: 'Amber Override', choices: ['A', 'B', 'C', 'D'], initial: 'C' },
+      { id: 'emerald', label: 'Emerald Override', choices: ['A', 'B', 'C', 'D'], initial: 'D' },
+    ],
+    par: 3,
+    unlockAfter: 'apprentice-04',
+  },
 ]
 
 export function unlockedLevelIds(completed: Record<string, number>): Set<string> {
