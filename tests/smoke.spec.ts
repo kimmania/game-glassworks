@@ -91,3 +91,23 @@ test('multi-source bridge level runs both furnaces through one crossing', async 
   await expect(page.locator('#run-log')).toContainText('Furnace B')
   await expect(page.getByRole('dialog', { name: 'Conveyor Solved' })).toBeVisible({ timeout: 8000 })
 })
+
+test('queued placement assigns pieces and allows placed gate recolor', async ({ page }) => {
+  await page.goto('/')
+  const completed: Record<string, number> = {}
+  for (let i = 1; i <= 25; i++) completed[`apprentice-${String(i).padStart(2, '0')}`] = 1
+  await page.evaluate((completed) => localStorage.setItem('glassworks-save-v1', JSON.stringify({ version: 1, settings: { defaultSpeed: 'relaxed', sound: true, reducedMotion: false, highContrast: false, loopRelaxed: true, seenIntro: true, seenHelp: true }, completed, results: {} })), completed)
+  await page.reload()
+  await expect(page.getByLabel('Apprentice Studio levels')).toBeVisible()
+  await page.getByRole('button', { name: /Queued Gate/ }).click()
+  await expect(page.getByText('Current Piece')).toBeVisible()
+  await expect(page.getByText('Straight', { exact: true })).toBeVisible()
+  for (const index of [13, 14, 15, 21, 16]) await page.locator('.grid-cell').nth(index).tap()
+  await expect(page.getByText('Queue empty')).toBeVisible()
+  await page.locator('.grid-cell').nth(15).tap()
+  await expect(page.getByText('Selected gate colour')).toBeVisible()
+  await page.getByRole('button', { name: /Cobalt gate colour/ }).tap()
+  for (const index of [15, 15, 15, 21]) await page.locator('.grid-cell').nth(index).tap()
+  await page.getByRole('button', { name: /Run Conveyor/ }).tap()
+  await expect(page.getByRole('dialog', { name: 'Conveyor Solved' })).toBeVisible({ timeout: 8000 })
+})

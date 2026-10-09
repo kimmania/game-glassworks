@@ -9,13 +9,14 @@ export type GlassColor = keyof typeof COLORS
 export type Direction = 'N' | 'E' | 'S' | 'W'
 export type PieceType = 'straight' | 'corner' | 'gate' | 'bridge'
 export type ToolId = PieceType | 'remove'
+export type PlacementMode = 'choose' | 'queue'
 export type SpeedKey = 'relaxed' | 'normal' | 'fast'
 export interface SourceSpec { id?: string; x: number; y: number; dir: Direction; sequence?: GlassColor[] }
 export interface KilnSpec { x: number; y: number; color: GlassColor }
 export interface Inventory { straight: number; corner: number; gate: number; bridge: number }
 export interface FixedPiece { x: number; y: number; type: PieceType; rot: number; color?: GlassColor }
 export interface BlockedTile { x: number; y: number }
-export interface Level { id: string; studio: 'apprentice'; title: string; subtitle: string; width: number; height: number; source?: SourceSpec; sources?: SourceSpec[]; kilns: KilnSpec[]; sequence?: GlassColor[]; inventory: Inventory; fixed?: FixedPiece[]; blocked?: BlockedTile[]; targetPieces: number; unlockAfter?: string }
+export interface Level { id: string; studio: 'apprentice'; title: string; subtitle: string; width: number; height: number; source?: SourceSpec; sources?: SourceSpec[]; kilns: KilnSpec[]; sequence?: GlassColor[]; inventory: Inventory; placementMode?: PlacementMode; pieceQueue?: PieceType[]; fixed?: FixedPiece[]; blocked?: BlockedTile[]; targetPieces: number; unlockAfter?: string }
 export const SPEEDS: Record<SpeedKey, { label: string; speedMs: number; description: string }> = {
   relaxed: { label: 'Study Run', speedMs: 650, description: 'Slow animation for learning routes.' },
   normal: { label: 'Workshop Run', speedMs: 430, description: 'Standard animation pace.' },
@@ -46,6 +47,9 @@ export const LEVELS: Level[] = [
   { id: 'apprentice-21', studio: 'apprentice', title: 'Twin Furnaces', subtitle: 'Two sources cross at a fixed bridge: solve both streams with one machine.', width: 8, height: 6, sources: [{ id: 'A', x: 0, y: 2, dir: 'E', sequence: ['amber', 'amber'] }, { id: 'B', x: 3, y: 5, dir: 'N', sequence: ['cobalt', 'cobalt'] }], kilns: [{ x: 7, y: 2, color: 'amber' }, { x: 3, y: 0, color: 'cobalt' }], sequence: [], inventory: { straight: 8, corner: 0, gate: 0, bridge: 0 }, fixed: [{ x: 3, y: 2, type: 'bridge', rot: 0 }], targetPieces: 8, unlockAfter: 'apprentice-20' },
   { id: 'apprentice-22', studio: 'apprentice', title: 'Placed Overpass', subtitle: 'This time you place the bridge where two furnace routes cross.', width: 8, height: 6, sources: [{ id: 'A', x: 0, y: 3, dir: 'E', sequence: ['amber', 'amber'] }, { id: 'B', x: 4, y: 5, dir: 'N', sequence: ['crimson', 'crimson'] }], kilns: [{ x: 7, y: 3, color: 'amber' }, { x: 4, y: 0, color: 'crimson' }], sequence: [], inventory: { straight: 7, corner: 2, gate: 0, bridge: 1 }, targetPieces: 8, unlockAfter: 'apprentice-21' },
   { id: 'apprentice-23', studio: 'apprentice', title: 'Crossed Branches', subtitle: 'Two furnaces, one shared crossing, and a gate branch on the main line.', width: 9, height: 7, sources: [{ id: 'A', x: 0, y: 3, dir: 'E', sequence: ['cobalt', 'amber', 'cobalt'] }, { id: 'B', x: 4, y: 6, dir: 'N', sequence: ['crimson', 'crimson'] }], kilns: [{ x: 8, y: 3, color: 'cobalt' }, { x: 5, y: 0, color: 'crimson' }, { x: 6, y: 6, color: 'amber' }], sequence: [], inventory: { straight: 11, corner: 4, gate: 1, bridge: 1 }, targetPieces: 13, unlockAfter: 'apprentice-22' },
+  { id: 'apprentice-24', studio: 'apprentice', title: 'Queued Line', subtitle: 'Place the fixed draw queue in order; the next piece is chosen for you.', width: 5, height: 4, source: { x: 0, y: 1, dir: 'E' }, kilns: [{ x: 4, y: 1, color: 'amber' }], sequence: ['amber', 'amber'], inventory: { straight: 3, corner: 0, gate: 0, bridge: 0 }, placementMode: 'queue', pieceQueue: ['straight', 'straight', 'straight'], targetPieces: 3, unlockAfter: 'apprentice-23' },
+  { id: 'apprentice-25', studio: 'apprentice', title: 'Queued Bend', subtitle: 'The queue includes one corner; place it where the path must turn, then rotate it.', width: 5, height: 5, source: { x: 0, y: 1, dir: 'E' }, kilns: [{ x: 3, y: 4, color: 'amber' }], sequence: ['amber', 'amber'], inventory: { straight: 4, corner: 1, gate: 0, bridge: 0 }, placementMode: 'queue', pieceQueue: ['straight', 'straight', 'corner', 'straight', 'straight'], targetPieces: 5, unlockAfter: 'apprentice-24' },
+  { id: 'apprentice-26', studio: 'apprentice', title: 'Queued Gate', subtitle: 'Place the gate from the queue, then configure its colour and arrow after it lands.', width: 6, height: 5, source: { x: 0, y: 2, dir: 'E' }, kilns: [{ x: 5, y: 2, color: 'amber' }, { x: 3, y: 4, color: 'cobalt' }], sequence: ['cobalt', 'amber', 'cobalt'], inventory: { straight: 4, corner: 0, gate: 1, bridge: 0 }, placementMode: 'queue', pieceQueue: ['straight', 'straight', 'gate', 'straight', 'straight'], targetPieces: 5, unlockAfter: 'apprentice-25' },
 ]
 
 export function unlockedLevelIds(completed: Record<string, number>): Set<string> { const ids = new Set<string>(); for (const level of LEVELS) if (!level.unlockAfter || completed[level.unlockAfter]) ids.add(level.id); return ids }
